@@ -47,6 +47,7 @@ with rasterio.open(argv.data[0]) as data:
     # Reason: we need bounds in the pixel coord space so we can choose a
     # window for the windowed read (the data is too huge to read the whole
     # thing).
+    print('Reading query files.')
     for f in argv.query:
         with rasterio.open(f) as src:
             query[f] = {
@@ -70,6 +71,7 @@ with rasterio.open(argv.data[0]) as data:
             query_crs = src.crs
             query_pixel = pixel
 
+    print('Reading data.')
     # these are in the data's pixel space
     ul = (min(xs), min(ys))
     lr = (max(xs), max(ys))
