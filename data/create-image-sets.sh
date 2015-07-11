@@ -54,4 +54,16 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
     $DATA/val.txt \
     $EXAMPLE/learnsat_val_lmdb
 
+echo "Creating test-train lmdb..."
+
+head -n 20 $DATA/train.txt > $DATA/test-train.txt
+
+GLOG_logtostderr=1 $TOOLS/convert_imageset \
+    --resize_height=$RESIZE_HEIGHT \
+    --resize_width=$RESIZE_WIDTH \
+    --shuffle \
+    $TRAIN_DATA_ROOT \
+    $DATA/test-train.txt \
+    $EXAMPLE/learnsat_test_train_lmdb
+
 echo "Done."

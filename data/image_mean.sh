@@ -7,6 +7,9 @@ DATA=temp
 TOOLS=$CAFFE_ROOT/build/tools
 
 $TOOLS/compute_image_mean $EXAMPLE/learnsat_train_lmdb \
-  $DATA/imagenet_mean.binaryproto
+  $DATA/learnsat_mean.binaryproto
+
+$TOOLS/compute_image_mean $EXAMPLE/learnsat_test_train_lmdb \
+  $DATA/learnsat_test_mean.binaryproto
 
 echo "Done."
