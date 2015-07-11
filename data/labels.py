@@ -3,6 +3,7 @@
 from os import path
 import rasterio
 import numpy
+from scipy import stats
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -54,6 +55,7 @@ for f in argv.data:
         band = src.read(1)
 
     count, total = reduce(summarize, numpy.ndarray.flatten(band), (0, 0))
+    mode = stats.mode(band, axis=None)[0][0]
 
     if total == 0:
         continue
@@ -63,4 +65,4 @@ for f in argv.data:
     else:
         label = 0
 
-    print(path.abspath(f) + ' ' + str(label))
+    print(path.abspath(f) + ' ' + str(mode))
