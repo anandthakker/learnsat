@@ -1,4 +1,4 @@
-name: "CaffeNet"
+name: "LearnsatCaffeNet"
 layer {
   name: "data"
   type: "Data"
@@ -9,20 +9,12 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 113
+    crop_size: 227
     mean_file: "temp/learnsat_mean.binaryproto"
   }
-# mean pixel / channel-wise mean instead of mean image
-#  transform_param {
-#    crop_size: 227
-#    mean_value: 104
-#    mean_value: 117
-#    mean_value: 123
-#    mirror: true
-#  }
   data_param {
     source: "temp/learnsat_train_lmdb"
-    batch_size: 16
+    batch_size: 4
     backend: LMDB
   }
 }
@@ -36,20 +28,12 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 113
+    crop_size: 227
     mean_file: "temp/learnsat_mean.binaryproto"
   }
-# mean pixel / channel-wise mean instead of mean image
-#  transform_param {
-#    crop_size: 227
-#    mean_value: 104
-#    mean_value: 117
-#    mean_value: 123
-#    mirror: true
-#  }
   data_param {
     source: "temp/learnsat_val_lmdb"
-    batch_size: 16
+    batch_size: 4
     backend: LMDB
   }
 }
@@ -277,10 +261,51 @@ layer {
   }
 }
 layer {
-  name: "fc6"
+  name: "fc6-sat"
   type: "InnerProduct"
   bottom: "pool5"
-  top: "fc6"
+  top: "fc6-sat"
+  param {
+    lr_mult: 10
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu6-sat"
+  type: "ReLU"
+  bottom: "fc6-sat"
+  top: "fc6-sat"
+}
+layer {
+  name: "drop6-sat"
+  type: "Dropout"
+  bottom: "fc6-sat"
+  top: "fc6-sat"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "fc7-sat"
+  type: "InnerProduct"
+  bottom: "fc6-sat"
+  top: "fc7-sat"
+  # Note that lr_mult can be set to 0 to disable any fine-tuning of this, and any other, layer
   param {
     lr_mult: 1
     decay_mult: 1
@@ -302,75 +327,35 @@ layer {
   }
 }
 layer {
-  name: "relu6"
+  name: "relu7-sat"
   type: "ReLU"
-  bottom: "fc6"
-  top: "fc6"
+  bottom: "fc7-sat"
+  top: "fc7-sat"
 }
 layer {
-  name: "drop6"
+  name: "drop7-sat"
   type: "Dropout"
-  bottom: "fc6"
-  top: "fc6"
+  bottom: "fc7-sat"
+  top: "fc7-sat"
   dropout_param {
     dropout_ratio: 0.5
   }
 }
 layer {
-  name: "fc7"
+  name: "fc8_flickr"
   type: "InnerProduct"
-  bottom: "fc6"
-  top: "fc7"
+  bottom: "fc7-sat"
+  top: "fc8_flickr"
   param {
-    lr_mult: 1
+    lr_mult: 2
     decay_mult: 1
   }
   param {
-    lr_mult: 2
+    lr_mult: 20
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 4096
-    weight_filler {
-      type: "gaussian"
-      std: 0.005
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu7"
-  type: "ReLU"
-  bottom: "fc7"
-  top: "fc7"
-}
-layer {
-  name: "drop7"
-  type: "Dropout"
-  bottom: "fc7"
-  top: "fc7"
-  dropout_param {
-    dropout_ratio: 0.5
-  }
-}
-layer {
-  name: "fc8"
-  type: "InnerProduct"
-  bottom: "fc7"
-  top: "fc8"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 1000
+    num_output: 20
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -382,28 +367,19 @@ layer {
   }
 }
 layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc8_flickr"
+  bottom: "label"
+  top: "loss"
+}
+layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "fc8"
+  bottom: "fc8_flickr"
   bottom: "label"
   top: "accuracy"
   include {
     phase: TEST
   }
-}
-layer {
-  name: "prob"
-  type: "Softmax"
-  bottom: "fc8"
-  top: "prob"
-  include {
-    phase: TEST
-  }
-}
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "fc8"
-  bottom: "label"
-  top: "loss"
 }

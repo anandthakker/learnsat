@@ -2,8 +2,8 @@ name: "CaffeNet"
 input: "data"
 input_dim: 10
 input_dim: 3
-input_dim: 227
-input_dim: 227
+input_dim: 113
+input_dim: 113
 layer {
   name: "conv1"
   type: "Convolution"
@@ -203,6 +203,13 @@ layer {
   inner_product_param {
     num_output: 1000
   }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc8"
+  bottom: "label"
+  top: "loss"
 }
 layer {
   name: "prob"

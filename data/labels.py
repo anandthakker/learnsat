@@ -65,4 +65,4 @@ for f in argv.data:
     else:
         label = 0
 
-    print(path.abspath(f) + ' ' + str(mode))
+    print(path.basename(f) + ' ' + str(mode))

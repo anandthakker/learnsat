@@ -1,4 +1,4 @@
-name: "CaffeNet"
+name: "LearnsatCaffeNet"
 layer {
   name: "data"
   type: "Data"
@@ -12,17 +12,9 @@ layer {
     crop_size: 113
     mean_file: "temp/learnsat_mean.binaryproto"
   }
-# mean pixel / channel-wise mean instead of mean image
-#  transform_param {
-#    crop_size: 227
-#    mean_value: 104
-#    mean_value: 117
-#    mean_value: 123
-#    mirror: true
-#  }
   data_param {
     source: "temp/learnsat_train_lmdb"
-    batch_size: 16
+    batch_size: 256
     backend: LMDB
   }
 }
@@ -39,17 +31,9 @@ layer {
     crop_size: 113
     mean_file: "temp/learnsat_mean.binaryproto"
   }
-# mean pixel / channel-wise mean instead of mean image
-#  transform_param {
-#    crop_size: 227
-#    mean_value: 104
-#    mean_value: 117
-#    mean_value: 123
-#    mirror: true
-#  }
   data_param {
     source: "temp/learnsat_val_lmdb"
-    batch_size: 16
+    batch_size: 50
     backend: LMDB
   }
 }
@@ -357,20 +341,20 @@ layer {
   }
 }
 layer {
-  name: "fc8"
+  name: "fc8_flickr"
   type: "InnerProduct"
   bottom: "fc7"
-  top: "fc8"
+  top: "fc8_flickr"
   param {
-    lr_mult: 1
+    lr_mult: 10
     decay_mult: 1
   }
   param {
-    lr_mult: 2
+    lr_mult: 20
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 1000
+    num_output: 20
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -382,28 +366,19 @@ layer {
   }
 }
 layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc8_flickr"
+  bottom: "label"
+  top: "loss"
+}
+layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "fc8"
+  bottom: "fc8_flickr"
   bottom: "label"
   top: "accuracy"
   include {
     phase: TEST
   }
-}
-layer {
-  name: "prob"
-  type: "Softmax"
-  bottom: "fc8"
-  top: "prob"
-  include {
-    phase: TEST
-  }
-}
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "fc8"
-  bottom: "label"
-  top: "loss"
 }

@@ -6,8 +6,8 @@ EXAMPLE=temp
 DATA=temp
 TOOLS=/Users/anand/dev/caffe/build/tools
 
-TRAIN_DATA_ROOT=/Users/anand/ds/learnsat/temp/train/
-VAL_DATA_ROOT=/Users/anand/ds/learnsat/temp/val/
+TRAIN_DATA_ROOT=/Users/anand/ds/learnsat/images/train/
+VAL_DATA_ROOT=/Users/anand/ds/learnsat/images/test/
 
 # Set RESIZE=true to resize the images to 256x256. Leave as false if images have
 # already been resized using another tool.
@@ -56,14 +56,14 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
 
 echo "Creating test-train lmdb..."
 
-head -n 20 $DATA/train.txt > $DATA/test-train.txt
+head -n 200 $DATA/train.txt > $DATA/tiny-train.txt
 
 GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --resize_height=$RESIZE_HEIGHT \
     --resize_width=$RESIZE_WIDTH \
     --shuffle \
     $TRAIN_DATA_ROOT \
-    $DATA/test-train.txt \
-    $EXAMPLE/learnsat_test_train_lmdb
+    $DATA/tiny-train.txt \
+    $EXAMPLE/learnsat_tiny_train_lmdb
 
 echo "Done."
