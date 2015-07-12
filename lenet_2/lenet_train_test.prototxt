@@ -71,8 +71,8 @@ layer {
   }
   convolution_param {
     num_output: 20
-    kernel_size: 7
-    stride: 2
+    kernel_size: 5
+    stride: 1
     weight_filler {
       type: "xavier"
     }
@@ -105,8 +105,8 @@ layer {
   }
   convolution_param {
     num_output: 48
-    kernel_size: 3
-    pad: 1
+    kernel_size: 5
+    pad: 2
     stride: 1
     weight_filler {
       type: "xavier"
@@ -128,44 +128,9 @@ layer {
   }
 }
 layer {
-  name: "conv3"
-  type: "Convolution"
-  bottom: "pool2"
-  top: "conv3"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
-  convolution_param {
-    num_output: 64
-    kernel_size: 3
-    pad: 1
-    stride: 1
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-layer {
-  name: "pool3"
-  type: "Pooling"
-  bottom: "conv3"
-  top: "pool3"
-  pooling_param {
-    pool: MAX
-    kernel_size: 2
-    stride: 2
-  }
-}
-layer {
   name: "ip1"
   type: "InnerProduct"
-  bottom: "pool3"
+  bottom: "pool2"
   top: "ip1"
   param {
     lr_mult: 1

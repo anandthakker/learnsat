@@ -35,6 +35,13 @@ classes = {
     95: 'Emergent Herbaceous Wetlands'
 }
 
+labels = {}
+
+# caffe expects labels to be sequential, starting at 0
+# https://groups.google.com/forum/#!msg/caffe-users/G_c3vTNjD_Y/3BOTn7T_uMQJ
+for i, c in enumerate(classes):
+    labels[c] = i
+
 def summarize(memo, val):
     count, total = memo
     if 21 <= val <= 24:
@@ -57,12 +64,7 @@ for f in argv.data:
     count, total = reduce(summarize, numpy.ndarray.flatten(band), (0, 0))
     mode = stats.mode(band, axis=None)[0][0]
 
-    if total == 0:
+    if total == 0 or not mode in labels:
         continue
 
-    if float(count)/total > .1:
-        label = 1
-    else:
-        label = 0
-
-    print(path.basename(f) + ' ' + str(mode))
+    print(path.basename(f) + ' ' + str(labels[mode]))

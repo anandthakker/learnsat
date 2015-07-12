@@ -1,5 +1,5 @@
 # The train/test net protocol buffer definition
-net: "lenet/lenet_train_test.prototxt"
+net: "lenet_2/lenet_train_test.prototxt"
 # test_iter specifies how many forward passes the test should carry out.
 # 64 * 40 = 2560 > full test set
 test_iter: 40
@@ -13,7 +13,7 @@ test_interval: 500
 # The base learning rate, momentum and the weight decay of the network.
 base_lr: 0.0001
 momentum: 0.9
-weight_decay: 0.001
+weight_decay: 0.003
 # The learning rate policy
 lr_policy: "step"
 gamma: 0.3
@@ -26,6 +26,6 @@ display: 100
 max_iter: 100000
 # snapshot intermediate results
 snapshot: 5000
-snapshot_prefix: "snap/lenet"
+snapshot_prefix: "snap/lenet_2"
 # solver mode: CPU or GPU
 solver_mode: GPU
