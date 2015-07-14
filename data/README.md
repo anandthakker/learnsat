@@ -7,7 +7,7 @@ export TEST_SIZE=2500
 
 # chop up the landsat images
 mkdir -p images/train
-ls ~/${LANDSAT} | grep "^L" | parallel ./data/chop.py --output images/train/{}.{x}.{y}.TIF --size 128 --bands 123 ${LANDSAT}/{}/{}_B{band}.TIF
+ls ${LANDSAT} | grep "^L" | parallel ./data/chop.py --output images/train/{}.{x}.{y}.TIF --size 128 --bands 123 ${LANDSAT}/{}/{}_B{band}.TIF
 
 # for each chopped piece, grab the corresponding patch of the landcover raster
 mkdir -p images/labels
@@ -15,7 +15,7 @@ ls images/train | sed 's/\.[0-9][0-9]*\.[0-9]*\.TIF//' | sort | uniq | parallel 
 
 # pull out a test set
 mkdir -p images/test
-ls images/train | shuf | head -n $TEST_SIZE | xargs -I{} mv {} images/labels/
+ls images/train | shuf | head -n $TEST_SIZE | xargs -I{} mv images/train/{} images/test/
 
 # generate label output files
 ls images/train/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/train.txt
