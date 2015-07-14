@@ -2,12 +2,12 @@
 # Create the imagenet lmdb inputs
 # N.B. set the path to the imagenet train + val data dirs
 
-EXAMPLE=temp
+OUTPUT=temp
 DATA=temp
-TOOLS=/Users/anand/dev/caffe/build/tools
+TOOLS=$CAFFE_ROOT/build/tools
 
-TRAIN_DATA_ROOT=/Users/anand/ds/learnsat/images/train/
-VAL_DATA_ROOT=/Users/anand/ds/learnsat/images/test/
+TRAIN_DATA_ROOT=`pwd`/images/train/
+VAL_DATA_ROOT=`pwd`/images/test/
 
 # Set RESIZE=true to resize the images to 256x256. Leave as false if images have
 # already been resized using another tool.
@@ -42,7 +42,7 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --shuffle \
     $TRAIN_DATA_ROOT \
     $DATA/train.txt \
-    $EXAMPLE/learnsat_train_lmdb
+    $OUTPUT/learnsat_train_lmdb
 
 echo "Creating val lmdb..."
 
@@ -52,7 +52,7 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --shuffle \
     $VAL_DATA_ROOT \
     $DATA/test.txt\
-    $EXAMPLE/learnsat_val_lmdb
+    $OUTPUT/learnsat_val_lmdb
 
 echo "Creating test-train lmdb..."
 
@@ -64,6 +64,6 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --shuffle \
     $TRAIN_DATA_ROOT \
     $DATA/tiny-train.txt \
-    $EXAMPLE/learnsat_tiny_train_lmdb
+    $OUTPUT/learnsat_tiny_train_lmdb
 
 echo "Done."
