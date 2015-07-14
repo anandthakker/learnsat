@@ -3,7 +3,6 @@
 from os import path
 import rasterio
 import numpy
-from scipy import stats
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -44,7 +43,7 @@ for i, c in enumerate(classes):
 
 def summarize(memo, val):
     count, total = memo
-    if 21 <= val <= 24:
+    if val == 82:
         count = count + 1
     if val in classes:
         total = total + 1
@@ -61,10 +60,14 @@ for f in argv.data:
     with rasterio.open(lf) as src:
         band = src.read(1)
 
-    count, total = reduce(summarize, numpy.ndarray.flatten(band), (0, 0))
-    mode = stats.mode(band, axis=None)[0][0]
+    flatband = numpy.ndarray.flatten(band)
+    count, total = reduce(summarize, flatband, (0, 0))
+    # mode = numpy.bincount(flatband).argmax()
 
-    if total == 0 or not mode in labels:
+    if total == 0:
         continue
-
-    print(path.basename(f) + ' ' + str(labels[mode]))
+    
+    label = 0
+    if float(count)/total > 0.1:
+        label=1
+    print(path.basename(f) + ' ' + str(label))
