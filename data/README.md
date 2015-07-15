@@ -13,15 +13,15 @@ ls ${LANDSAT} | grep "^L" | parallel ./data/chop.py --output images/train/{}.{x}
 mkdir -p images/labels
 ls images/train | sed 's/\.[0-9][0-9]*\.[0-9]*\.TIF//' | sort | uniq | parallel --bar ./data/query.py --output images/labels/ ${LANDCOVER}/nlcd_2011_landcover_2011_edition_2014_10_10.img --query images/train/{}*.TIF
 
-# pull out a test set
-mkdir -p images/test
-ls images/train | shuf | head -n $TEST_SIZE | xargs -I{} mv images/train/{} images/test/
+# pull out a val set
+mkdir -p images/val
+ls images/train | shuf | head -n $TEST_SIZE | xargs -I{} mv images/train/{} images/val/
 
 # generate label output files
 ls images/train/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/train.txt
-ls images/test/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/test.txt
+ls images/val/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/val.txt
 
 # create leveldb and image means
-./data/create-image-sets.sh
-./data/image_mean.sh
+./data/create-image-sets.sh temp/train.txt images/train/ temp/learnsat_train_lmdb
+./data/image_mean.sh temp/val.txt images/val temp/learnsat_val_lmdb
 ```

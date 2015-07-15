@@ -1,69 +1,53 @@
 #!/usr/bin/env sh
-# Create the imagenet lmdb inputs
-# N.B. set the path to the imagenet train + val data dirs
 
-OUTPUT=temp
-DATA=temp
+DATA=$1
+IMAGES_ROOT=$2
+OUTPUT=$3
+RESIZE_WIDTH=${4:-0}
+RESIZE_HEIGHT=${5:-0}
+
 TOOLS=$CAFFE_ROOT/build/tools
 
-TRAIN_DATA_ROOT=`pwd`/images/train/
-VAL_DATA_ROOT=`pwd`/images/test/
-
-# Set RESIZE=true to resize the images to 256x256. Leave as false if images have
-# already been resized using another tool.
-RESIZE=false
-if $RESIZE; then
-  RESIZE_HEIGHT=256
-  RESIZE_WIDTH=256
-else
-  RESIZE_HEIGHT=0
-  RESIZE_WIDTH=0
-fi
-
-if [ ! -d "$TRAIN_DATA_ROOT" ]; then
-  echo "Error: TRAIN_DATA_ROOT is not a path to a directory: $TRAIN_DATA_ROOT"
-  echo "Set the TRAIN_DATA_ROOT variable in create_imagenet.sh to the path" \
-       "where the ImageNet training data is stored."
+function usage {
+  echo "Usage: $0 training_data.txt path/to/images path/to/output_lmdb [resize_width=0] [resize_height=0]"
   exit 1
+}
+
+if [ ! -d "$CAFFE_ROOT" ]; then
+  echo "Error: couldn't find Caffe tools at: $TOOLS"
+  echo "Set CAFFE_ROOT to the root path of the Caffe repo."
+  usage
 fi
 
-if [ ! -d "$VAL_DATA_ROOT" ]; then
-  echo "Error: VAL_DATA_ROOT is not a path to a directory: $VAL_DATA_ROOT"
-  echo "Set the VAL_DATA_ROOT variable in create_imagenet.sh to the path" \
-       "where the ImageNet validation data is stored."
-  exit 1
+if [ ! -f "$DATA" ]; then
+  echo "Error: $DATA not found."
+  usage
 fi
 
-echo "Creating train lmdb..."
+if [ ! -d "$IMAGES_ROOT" ]; then
+  echo "Error: $IMAGES_ROOT is not a directory."
+  usage
+fi
+
+OUT_DIR=`dirname $OUTPUT`
+if [ ! -d "$OUT_DIR" ]; then
+  echo "Error: $OUT_DIR is not a directory."
+  usage
+fi
+
+if [ -e "$OUTPUT" ]; then
+  echo "Error: $OUTPUT already exists."
+  usage
+fi
+
+echo "Creating $OUTPUT..."
 
 GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --resize_height=$RESIZE_HEIGHT \
     --resize_width=$RESIZE_WIDTH \
     --shuffle \
-    $TRAIN_DATA_ROOT \
-    $DATA/train.txt \
-    $OUTPUT/learnsat_train_lmdb
-
-echo "Creating val lmdb..."
-
-GLOG_logtostderr=1 $TOOLS/convert_imageset \
-    --resize_height=$RESIZE_HEIGHT \
-    --resize_width=$RESIZE_WIDTH \
-    --shuffle \
-    $VAL_DATA_ROOT \
-    $DATA/test.txt\
-    $OUTPUT/learnsat_val_lmdb
-
-echo "Creating test-train lmdb..."
-
-head -n 200 $DATA/train.txt > $DATA/tiny-train.txt
-
-GLOG_logtostderr=1 $TOOLS/convert_imageset \
-    --resize_height=$RESIZE_HEIGHT \
-    --resize_width=$RESIZE_WIDTH \
-    --shuffle \
-    $TRAIN_DATA_ROOT \
-    $DATA/tiny-train.txt \
-    $OUTPUT/learnsat_tiny_train_lmdb
+    $IMAGES_ROOT \
+    $DATA \
+    $OUTPUT
 
 echo "Done."
