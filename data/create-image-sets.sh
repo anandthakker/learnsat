@@ -8,7 +8,7 @@ RESIZE_HEIGHT=${5:-0}
 
 TOOLS=$CAFFE_ROOT/build/tools
 
-function usage {
+usage() {
   echo "Usage: $0 training_data.txt path/to/images path/to/output_lmdb [resize_width=0] [resize_height=0]"
   exit 1
 }
@@ -49,5 +49,8 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
     $IMAGES_ROOT \
     $DATA \
     $OUTPUT
+
+IMAGE_MEAN=${OUTPUT%/}_mean.binaryproto
+GLOG_logtostderr=1 $TOOLS/compute_image_mean $OUTPUT $IMAGE_MEAN
 
 echo "Done."
