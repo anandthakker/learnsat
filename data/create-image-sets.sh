@@ -45,7 +45,6 @@ echo "Creating $OUTPUT..."
 GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --resize_height=$RESIZE_HEIGHT \
     --resize_width=$RESIZE_WIDTH \
-    --shuffle \
     $IMAGES_ROOT \
     $DATA \
     $OUTPUT

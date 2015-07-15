@@ -21,7 +21,15 @@ ls images/train | shuf | head -n $TEST_SIZE | xargs -I{} mv images/train/{} imag
 ls images/train/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/train.txt
 ls images/val/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/val.txt
 
+# shuffle the lines in each file
+cat temp/train.txt | shuf > temp/train-shuffled.txt
+mv temp/train-shuffled.txt temp/train.txt
+cat temp/test.txt | shuf > temp/test-shuffled.txt
+mv temp/test-shuffled.txt temp/test-shuffled.txt
+
+# make parallel lists with the actual label-image name
+cat temp/test.txt | sed 's/TIF/labels.TIF/' > temp/test-labels.txt
+cat temp/train.txt | sed 's/TIF/labels.TIF/' > temp/train-labels.txt
+
 # create leveldb and image means
-./data/create-image-sets.sh temp/train.txt images/train/ temp/learnsat_train_lmdb
-./data/image_mean.sh temp/val.txt images/val temp/learnsat_val_lmdb
 ```
