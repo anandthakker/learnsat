@@ -17,19 +17,19 @@ ls images/train | sed 's/\.[0-9][0-9]*\.[0-9]*\.TIF//' | sort | uniq | parallel 
 mkdir -p images/val
 ls images/train | shuf | head -n $TEST_SIZE | xargs -I{} mv images/train/{} images/val/
 
-# generate label output files
-ls images/train/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/train.txt
-ls images/val/ | parallel -n 1000 ./data/labels.py --labels images/labels/ {} > temp/val.txt
-
-# shuffle the lines in each file
-cat temp/train.txt | shuf > temp/train-shuffled.txt
-mv temp/train-shuffled.txt temp/train.txt
-cat temp/test.txt | shuf > temp/test-shuffled.txt
-mv temp/test-shuffled.txt temp/test-shuffled.txt
+# generate file lists
+ls images/val/ | sed 's/.*/& 0/' | shuf > images/val.txt
+ls images/train/ | sed 's/.*/& 0/' | shuf > images/train.txt
 
 # make parallel lists with the actual label-image name
-cat temp/test.txt | sed 's/TIF/labels.TIF/' > temp/test-labels.txt
-cat temp/train.txt | sed 's/TIF/labels.TIF/' > temp/train-labels.txt
+cat images/val.txt | sed 's/TIF/labels.TIF/' > images/val-labels.txt
+cat images/train.txt | sed 's/TIF/labels.TIF/' > images/train-labels.txt
 
 # create leveldb and image means
+./data/build_image_sets.py
+
+# create label databases, parallel to the image ones
+mkdir -p temp/classify
+./data/build_label_set.py --output temp/classify/val-labels-lmdb --image-list images/val-labels.txt --image-root images/labels --size 128
+./data/build_label_set.py --output temp/classify/train-labels-lmdb --image-list images/train-labels.txt --image-root images/labels --size 128 > temp/classify/classes.txt
 ```

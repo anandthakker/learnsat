@@ -41,6 +41,7 @@ labels = {}
 for i, c in enumerate(classes):
     labels[c] = i
 
+
 def summarize(memo, val):
     count, total = memo
     if val == 82:
@@ -66,8 +67,8 @@ for f in argv.data:
 
     if total == 0:
         continue
-    
+
     label = 0
     if float(count)/total > 0.1:
-        label=1
+        label = 1
     print(path.basename(f) + ' ' + str(label))
