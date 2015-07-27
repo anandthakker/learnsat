@@ -1,39 +1,24 @@
-name: "LearnsatCaffeNet"
 layer {
   name: "data"
   type: "Data"
   top: "data"
-  top: "label"
-  include {
-    phase: TRAIN
-  }
   transform_param {
     mirror: true
-    crop_size: 227
-    mean_file: "temp/learnsat_mean.binaryproto"
+    mean_file: "%(mean_file)s"
   }
   data_param {
-    source: "temp/learnsat_train_lmdb"
-    batch_size: 4
+    source: "%(lmdb)s"
+    batch_size: %(batch_size)s
     backend: LMDB
   }
 }
 layer {
-  name: "data"
+  name: "labels"
   type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    mirror: false
-    crop_size: 227
-    mean_file: "temp/learnsat_mean.binaryproto"
-  }
+  top: "labels"
   data_param {
-    source: "temp/learnsat_val_lmdb"
-    batch_size: 4
+    source: "%(lmdb_labels)s"
+    batch_size: %(batch_size)s
     backend: LMDB
   }
 }
@@ -266,11 +251,11 @@ layer {
   bottom: "pool5"
   top: "fc6-sat"
   param {
-    lr_mult: 10
+    lr_mult: 5
     decay_mult: 1
   }
   param {
-    lr_mult: 2
+    lr_mult: 10
     decay_mult: 0
   }
   inner_product_param {
@@ -307,11 +292,11 @@ layer {
   top: "fc7-sat"
   # Note that lr_mult can be set to 0 to disable any fine-tuning of this, and any other, layer
   param {
-    lr_mult: 1
+    lr_mult: 5
     decay_mult: 1
   }
   param {
-    lr_mult: 2
+    lr_mult: 10
     decay_mult: 0
   }
   inner_product_param {
@@ -342,20 +327,20 @@ layer {
   }
 }
 layer {
-  name: "fc8_flickr"
+  name: "fc8_sat"
   type: "InnerProduct"
   bottom: "fc7-sat"
-  top: "fc8_flickr"
+  top: "fc8_sat"
   param {
-    lr_mult: 2
+    lr_mult: 5
     decay_mult: 1
   }
   param {
-    lr_mult: 20
+    lr_mult: 10
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 20
+    num_output: 21
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -367,16 +352,22 @@ layer {
   }
 }
 layer {
+  name: "label"
+  type: "ArgMax"
+  bottom: "labels"
+  top: "label"
+}
+layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "fc8_flickr"
+  bottom: "fc8_sat"
   bottom: "label"
   top: "loss"
 }
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "fc8_flickr"
+  bottom: "fc8_sat"
   bottom: "label"
   top: "accuracy"
   include {
