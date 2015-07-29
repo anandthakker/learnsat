@@ -1,0 +1,1 @@
+{"lr_step": 320, "n_epochs": 5, "train_size": 4096, "base_lr": 0.0074787508611772885, "momentum": 0.9, "weight_decay": 0.13255204871387155, "gamma": 0.1}
