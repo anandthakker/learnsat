@@ -4,3 +4,6 @@ images
 .ipynb_checkpoints/
 snap
 results
+*.solverstate
+*.caffemodel
+
