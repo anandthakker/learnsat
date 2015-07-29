@@ -1,0 +1,1 @@
+{"lr_step": 969.8764066739188, "snapshot_prefix": "finetune/search/alex.snap.lr_step-969.876406674.n_epochs-40.train_size-8192.base_lr-0.00185502041599.momentum-0.9.weight_decay-0.0676352252297.gamma-0.1.", "snapshot_iters": 1280, "n_epochs": 40, "train_size": 8192, "base_lr": 0.001855020415991146, "momentum": 0.9, "weight_decay": 0.06763522522969719, "gamma": 0.1}
